@@ -75,7 +75,7 @@ class vec3 {
 
     static vec3 cross(const vec3& first, const vec3& second);
 
-    static vec3 unit_vector(vec3 vec);
+    static vec3 unit_vector (vec3 vec);
 };
 
 using point3 = vec3;
