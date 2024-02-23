@@ -2,6 +2,7 @@
 #define _VEC3_HPP_
 #include <iostream>
 #include <math.h>
+#include "main.hpp"
 
 class vec3 {
 
@@ -76,6 +77,41 @@ class vec3 {
     static vec3 cross(const vec3& first, const vec3& second);
 
     static vec3 unit_vector (vec3 vec);
+
+    static vec3 random(){
+        return vec3(random_double(),random_double(),random_double());
+    }
+
+    static vec3 random(double min, double max){
+        return vec3(random_double(min,max),random_double(min,max),random_double(min,max));
+    }
+
+    static vec3 random_in_unit_sphere(){
+        //return random(-1,1);
+        while(true){
+            vec3 cur = random(-1,1);
+            if(cur.len_squared()<1.0) return cur;
+        }
+    }
+
+    bool near_zero() const {
+        auto s = 1e-8;
+        return (fabs(e[0])<0) && (fabs(e[1])<s) && (fabs(e[2])<s);
+    }
+
+    static vec3 random_unit_vector(){
+        return unit_vector(random_in_unit_sphere());
+    }
+
+    static vec3 random_on_hemisphere(const vec3& normal){
+        vec3 unit = random_unit_vector();
+        if(dot(unit,normal)>0) return unit;
+        return -unit;
+    }
+
+    static vec3 reflect(const vec3& v, const vec3& n){
+        return v - 2*dot(v,n)*n;
+    }
 };
 
 using point3 = vec3;
