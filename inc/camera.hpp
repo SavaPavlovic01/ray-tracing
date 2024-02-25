@@ -15,6 +15,10 @@ class camera {
     int samples_per_pixel = 10;
     int image_width = 100;
     int max_depth = 10;
+    double vfov = 90;
+    point3 lookfrom = point3(0,0,-1);
+    point3 lookat = point3(0,0,0);
+    vec3 vup = vec3(0,1,0);
 
     void render(const hittable& world){
         init();
@@ -47,6 +51,8 @@ class camera {
     point3 pixel00_loc;
     vec3 pixel_delta_u;
     vec3 pixel_delta_v;
+
+    vec3 u,v,w;
 
     color ray_color(const ray& r, int depth, const hittable& world){
 
@@ -85,18 +91,24 @@ class camera {
         image_height = static_cast<int>(image_width/aspect_ratio);
         image_height = (image_height < 1)? 1 : image_height;
 
-        double focal_length = 1.0;
-        double viewport_height = 2.0;
+        double focal_length = (lookfrom - lookat).len();
+        double theta = degrees_to_radians(vfov);
+        double h = focal_length * tan(theta/2);
+        double viewport_height = 2*h;
         double viewport_width = viewport_height * (static_cast<double>(image_width)/image_height);
-        center = point3(0,0,0);
+        center = lookfrom;
 
-        vec3 viewport_u = vec3(viewport_width,0,0);
-        vec3 viewport_v = vec3(0,-viewport_height,0);
+        w = vec3::unit_vector(lookfrom - lookat);
+        u = vec3::unit_vector(vec3::cross(vup, w));
+        v = vec3::cross(w,u);
+
+        vec3 viewport_u = viewport_width * u;
+        vec3 viewport_v = viewport_height * (-v);
 
         pixel_delta_u = viewport_u / image_width;
         pixel_delta_v = viewport_v / image_height;
 
-        point3 viewport_upper_left = center - vec3(0,0,focal_length) - viewport_u/2 - viewport_v/2;
+        point3 viewport_upper_left = center - (focal_length*w) - viewport_u/2 - viewport_v/2;
         pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);    
 
     }
